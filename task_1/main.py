@@ -1,7 +1,7 @@
 import os
 import shutil
 import asyncio
-
+import argparse
 
 async def read_folder(source):
     files = []
@@ -9,7 +9,6 @@ async def read_folder(source):
         for filename in filenames:
             files.append(os.path.join(root, filename))
     return files
-
 
 async def copy_file(source_file, output):
     try:
@@ -21,15 +20,15 @@ async def copy_file(source_file, output):
     except Exception as e:
         print(f"Error copying {source_file}: {str(e)}")
 
-
-async def main():
-    source_folder = os.path.join(os.path.dirname(__file__), "source")
-    output_folder = os.path.join(os.path.dirname(__file__), "output")
-
+async def main(source_folder, output_folder):
     files = await read_folder(source_folder)
     tasks = [copy_file(file, output_folder) for file in files]
     await asyncio.gather(*tasks)
 
-
 if __name__ == "__main__":
-    asyncio.run(main())
+    parser = argparse.ArgumentParser(description="Async file sorting script")
+    parser.add_argument("--source", type=str, default="./source", help="Source folder path")
+    parser.add_argument("--output", type=str, default="./output", help="Output folder path")
+    args = parser.parse_args()
+
+    asyncio.run(main(args.source, args.output))
